@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Notes Master — a modern offline-first notes workspace.">
+  <meta name="theme-color" content="#6d5dfc">
+  <title>Notes Master</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">✎</span>
+      <div><strong>Notes Master</strong><small>Personal workspace</small></div>
+    </div>
+
+    <button class="new-note primary-btn" id="newNoteBtn">＋ New note <kbd>Ctrl N</kbd></button>
+
+    <nav class="side-nav">
+      <button class="nav-item active" data-view="all"><span>▤</span> All notes <b id="allCount">0</b></button>
+      <button class="nav-item" data-view="pinned"><span>📌</span> Pinned <b id="pinnedCount">0</b></button>
+      <button class="nav-item" data-view="favorites"><span>★</span> Favorites <b id="favoriteCount">0</b></button>
+      <button class="nav-item" data-view="archive"><span>▱</span> Archive <b id="archiveCount">0</b></button>
+      <button class="nav-item" data-view="trash"><span>♻</span> Trash <b id="trashCount">0</b></button>
+    </nav>
+
+    <div class="side-section">
+      <div class="side-label"><span>Folders</span><button id="addFolderBtn" class="mini-btn">＋</button></div>
+      <div id="folderList" class="folder-list"></div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="footer-btn" id="exportBtn">⇩ Export</button>
+      <button class="footer-btn" id="importBtn">⇧ Import</button>
+      <input id="importInput" type="file" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-only" id="menuBtn" aria-label="Open menu">☰</button>
+      <div class="topbar-left">
+        <p class="eyebrow">WORKSPACE</p>
+        <h1 id="viewTitle">All Notes</h1>
+      </div>
+      <div class="topbar-actions">
+        <label class="search">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="Search notes..." aria-label="Search notes">
+          <kbd>/</kbd>
+        </label>
+        <button class="icon-btn" id="themeBtn" title="Toggle theme">☾</button>
+        <button class="icon-btn" id="focusBtn" title="Focus mode">⛶</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <div class="notes-pane">
+        <div class="list-toolbar">
+          <div>
+            <span id="resultsCount">0 notes</span>
+            <span class="toolbar-muted" id="selectionHint"></span>
+          </div>
+          <select id="sortSelect" aria-label="Sort notes">
+            <option value="updated">Recently updated</option>
+            <option value="created">Recently created</option>
+            <option value="title">Title A–Z</option>
+            <option value="favorites">Favorites first</option>
+            <option value="pinned">Pinned first</option>
+          </select>
+        </div>
+        <div id="notesList" class="notes-list"></div>
+        <div id="emptyList" class="empty-list hidden">
+          <div class="empty-icon">✦</div>
+          <h3 id="emptyTitle">No notes yet</h3>
+          <p id="emptyText">Create your first note to get started.</p>
+          <button class="primary-btn small-btn" id="emptyAction">Create note</button>
+        </div>
+      </div>
+
+      <section class="editor-pane" id="editorPane">
+        <div class="editor-empty" id="editorEmpty">
+          <div class="editor-empty-icon">📝</div>
+          <h2>Select a note</h2>
+          <p>Pick a note from the list or create a new one.</p>
+        </div>
+
+        <div id="editor" class="editor hidden">
+          <div class="editor-topline">
+            <div class="editor-actions">
+              <button class="ghost-btn" id="backToListBtn">← Notes</button>
+              <span id="saveState" class="save-state">Saved</span>
+            </div>
+            <div class="editor-actions">
+              <button class="icon-btn" id="pinBtn" title="Pin note">📌</button>
+              <button class="icon-btn" id="favoriteBtn" title="Favorite">★</button>
+              <button class="icon-btn" id="archiveBtn" title="Archive">▱</button>
+              <button class="icon-btn danger-icon" id="deleteBtn" title="Delete">♲</button>
+              <button class="icon-btn" id="moreBtn" title="More">⋯</button>
+            </div>
+          </div>
+
+          <input id="noteTitle" class="title-input" placeholder="Untitled note" maxlength="160">
+          <div class="editor-meta">
+            <span id="noteFolderMeta">No folder</span>
+            <span>•</span>
+            <span id="noteUpdatedMeta">Just now</span>
+            <span>•</span>
+            <span id="wordCount">0 words</span>
+          </div>
+
+          <div class="editor-toolbar" id="editorToolbar">
+            <button data-cmd="bold"><b>B</b></button>
+            <button data-cmd="italic"><i>I</i></button>
+            <button data-cmd="underline"><u>U</u></button>
+            <button data-cmd="strikeThrough"><s>S</s></button>
+            <span class="divider"></span>
+            <button data-cmd="insertUnorderedList">• List</button>
+            <button data-cmd="insertOrderedList">1. List</button>
+            <button data-cmd="formatBlock" data-value="h2">H2</button>
+            <button data-cmd="formatBlock" data-value="blockquote">❝</button>
+            <span class="divider"></span>
+            <button id="insertChecklistBtn">☑ Checklist</button>
+            <button id="insertCodeBtn">&lt;/&gt;</button>
+            <button id="insertLinkBtn">🔗</button>
+            <button id="clearFormatBtn">Tx</button>
+          </div>
+
+          <div id="noteBody" class="note-body" contenteditable="true" spellcheck="true" data-placeholder="Start writing..."></div>
+
+          <div class="editor-footer">
+            <span>Autosave enabled</span>
+            <span id="noteCreatedMeta">Created —</span>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div class="modal hidden" id="folderModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3>New folder</h3><button class="icon-btn" data-close="folderModal">×</button></div>
+    <input id="folderNameInput" placeholder="Folder name" maxlength="40">
+    <div class="modal-actions"><button class="ghost-btn" data-close="folderModal">Cancel</button><button class="primary-btn" id="saveFolderBtn">Create folder</button></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="moreModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3>Note actions</h3><button class="icon-btn" data-close="moreModal">×</button></div>
+    <button class="modal-row" id="duplicateBtn">⧉ Duplicate note</button>
+    <button class="modal-row" id="moveBtn">⇢ Move to folder</button>
+    <button class="modal-row" id="printBtn">⎙ Print note</button>
+    <button class="modal-row" id="copyBtn">⧉ Copy note text</button>
+  </div>
+</div>
+
+<div class="modal hidden" id="moveModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3>Move note</h3><button class="icon-btn" data-close="moveModal">×</button></div>
+    <select id="moveFolderSelect"></select>
+    <div class="modal-actions"><button class="ghost-btn" data-close="moveModal">Cancel</button><button class="primary-btn" id="saveMoveBtn">Move</button></div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
